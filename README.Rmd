@@ -1,0 +1,29 @@
+---
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# nexonsAnalysis
+
+R functions for analysis and graphical representation of output from nexons
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, comment = FALSE)
+devtools::load_all()
+```
+
+```{r, eval = FALSE}
+devtools::install_github("laurabiggins/nexonsAnalysis")
+library(nexonsAnalysis)
+```
+
+
+# Example data and plot
+
+```{r, fig.width = 12, fig.height = 4}
+file <- system.file("extdata", "nexons_sirv5_f15.gtf", package = "nexonsAnalysis")
+plot_wrapper(file, min_count = 5, quant_plot = TRUE)
+```
+
