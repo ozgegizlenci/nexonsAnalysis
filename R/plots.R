@@ -67,9 +67,8 @@ draw_splice_picture <- function(splice_data, title_text = "", quant = FALSE) {
 
   if(quant){
     quant_plot <- plot_quant(splice_data)
-    splice_plots <- invisible(gridExtra::grid.arrange(p, quant_plot, nrow=1))
+    return(invisible(gridExtra::grid.arrange(p, quant_plot, nrow=1)))
   } else {
-    splice_plots <- p
+    return(p)
   }
-  splice_plots
 }
