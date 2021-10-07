@@ -4,12 +4,22 @@
 \alias{draw_splice_picture}
 \title{Draw a picture of splice patterns}
 \usage{
-draw_splice_picture(splice_data, title_text = "", quant = FALSE)
+draw_splice_picture(
+  splice_data,
+  gene = "",
+  gene_id_col = "Gene_id",
+  title_text = "",
+  quant = FALSE
+)
 }
 \arguments{
 \item{splice_data}{dataframe containing columns named variant, strand, score,
 Transcript_id and splice_pattern. Intended to be the output of parse_nexons_gtf
 function.}
+
+\item{gene}{gene name/id to filter for}
+
+\item{gene_id_col}{name of the column containing the gene names/ids}
 
 \item{title_text}{optional title for plot (probably gene name)}
 

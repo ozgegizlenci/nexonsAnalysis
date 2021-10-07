@@ -31,11 +31,12 @@ plot_quant <- function(splice_df){
 #' @export
 #'
 #' @examples
+#' NA
 add_unknown_ids <- function(parsed_splices, Transcript_id_col = "Transcript_id", variant_col = "variant") {
   n_ids <- sum(parsed_splices[[Transcript_id_col]] != "unknown")
   parsed_splices %>%
-    mutate(unknown_index = .data[[variant_col]] - n_ids) %>%
-    mutate(Transcript_id = if_else(.data[[Transcript_id_col]] == "unknown", paste("unknown", unknown_index), .data[[Transcript_id_col]]))
+    dplyr::mutate(unknown_index = .data[[variant_col]] - n_ids) %>%
+    dplyr::mutate(Transcript_id = dplyr::if_else(.data[[Transcript_id_col]] == "unknown", paste("unknown", unknown_index), .data[[Transcript_id_col]]))
 }
 
 
@@ -63,7 +64,7 @@ draw_splice_picture <- function(splice_data, gene = "", gene_id_col = "Gene_id",
   if(title_text == "") title_text <- gene
 
   splice_data_filt <- if(gene %in% splice_data[[gene_id_col]]) {
-    filter(splice_data, .data[[gene_id_col]] == gene)
+    dplyr::filter(splice_data, .data[[gene_id_col]] == gene)
   } else if (nchar(gene) > 0){
     warning(message = paste("couldn't find gene name", gene, "in dataset, check it matches exactly. \n Continuing without filtering"))
     splice_data

@@ -51,9 +51,9 @@ parse_nexons_gtf <- function(nexon_gtf, min_count = 1){
     dplyr::mutate(splice_pattern = gsub("splicePattern ", "", splice_pattern)) %>%
     dplyr::arrange(Transcript_id) %>%
     dplyr::filter(score >= min_count) %>%
-    group_by(Gene_id) %>%
-    mutate(variant = 1:n()) %>%
-    ungroup()
+    dplyr::group_by(Gene_id) %>%
+    dplyr::mutate(variant = 1:dplyr::n()) %>%
+    dplyr::ungroup()
 
 }
 
