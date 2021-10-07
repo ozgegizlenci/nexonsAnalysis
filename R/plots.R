@@ -17,6 +17,28 @@ plot_quant <- function(splice_df){
     ggrepel::geom_text_repel()
 }
 
+
+#' Add more useful ids to unknown transcripts.
+#' Append a number to any Transcript_ids labelled with the id "unknown".
+#'
+#' @param parsed_splices dataframe containing columns named variant, strand, score,
+#' Transcript_id and splice_pattern. Intended to be the output of parse_nexons_gtf
+#' function.
+#' @param Transcript_id_col name of the Transcript id column
+#' @param variant_col name of column containing the variant id
+#'
+#' @return tibble
+#' @export
+#'
+#' @examples
+add_unknown_ids <- function(parsed_splices, Transcript_id_col = "Transcript_id", variant_col = "variant") {
+  n_ids <- sum(parsed_splices[[Transcript_id_col]] != "unknown")
+  parsed_splices %>%
+    mutate(unknown_index = .data[[variant_col]] - n_ids) %>%
+    mutate(Transcript_id = if_else(.data[[Transcript_id_col]] == "unknown", paste("unknown", unknown_index), .data[[Transcript_id_col]]))
+}
+
+
 #' Draw a picture of splice patterns
 #'
 #' Creates plot showing splice variants
@@ -24,19 +46,31 @@ plot_quant <- function(splice_df){
 #' @param splice_data dataframe containing columns named variant, strand, score,
 #' Transcript_id and splice_pattern. Intended to be the output of parse_nexons_gtf
 #' function.
+#' @param gene gene name/id to filter for
+#' @param gene_id_col name of the column containing the gene names/ids
 #' @param title_text optional title for plot (probably gene name)
 #' @param quant TRUE or FALSE whether to show a quantitative plot of transcipt
 #' counts alongside the splice variants
 #'
-#' @return
+#' @return ggplot object
 #' @export
 #'
 #' @examples
 #' NA
 #' @import ggplot2
-draw_splice_picture <- function(splice_data, title_text = "", quant = FALSE) {
+draw_splice_picture <- function(splice_data, gene = "", gene_id_col = "Gene_id", title_text = "", quant = FALSE) {
 
-  splice_plot_data <- add_exon_loci(splice_data)
+  if(title_text == "") title_text <- gene
+
+  splice_data_filt <- if(gene %in% splice_data[[gene_id_col]]) {
+    filter(splice_data, .data[[gene_id_col]] == gene)
+  } else if (nchar(gene) > 0){
+    warning(message = paste("couldn't find gene name", gene, "in dataset, check it matches exactly. \n Continuing without filtering"))
+    splice_data
+  } else splice_data
+
+  splice_data_filt <- add_unknown_ids(splice_data_filt)
+  splice_plot_data <- add_exon_loci(splice_data_filt)
 
   splice_segment_data <- splice_plot_data %>%
     dplyr::group_by(variant) %>%
@@ -66,7 +100,7 @@ draw_splice_picture <- function(splice_data, title_text = "", quant = FALSE) {
     scale_colour_manual(values = strand_colour)
 
   if(quant){
-    quant_plot <- plot_quant(splice_data)
+    quant_plot <- plot_quant(splice_data_filt)
     return(invisible(gridExtra::grid.arrange(p, quant_plot, nrow=1)))
   } else {
     return(p)
