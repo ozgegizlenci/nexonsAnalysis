@@ -17,7 +17,7 @@ function.}
 counts alongside the splice variants}
 }
 \value{
-
+ggplot object
 }
 \description{
 Creates plot showing splice variants

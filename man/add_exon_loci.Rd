@@ -18,5 +18,6 @@ parses splice patterns, adding 2 columns (start and end of exon) to a dataframe
 containin the splice patterns
 }
 \examples{
-none
+NA
+
 }

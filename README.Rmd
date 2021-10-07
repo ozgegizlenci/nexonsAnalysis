@@ -10,7 +10,7 @@ R functions for analysis and graphical representation of output from nexons
 
 ```{r setup, include=FALSE}
 library(knitr)
-knitr::opts_chunk$set(message = FALSE, warning = FALSE, comment = FALSE)
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, comment = FALSE, fig.path = "man/figures/README-")
 devtools::load_all()
 ```
 

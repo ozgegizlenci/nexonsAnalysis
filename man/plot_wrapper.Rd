@@ -7,10 +7,16 @@
 plot_wrapper(nexons_output_file, quant_plot = FALSE, min_count = 1)
 }
 \arguments{
-\item{nexons_output_file}{}
+\item{nexons_output_file}{gtf file output from nexons}
+
+\item{quant_plot}{TRUE or FALSE, whether to display a quantitative plot
+alongside the splice picture}
+
+\item{min_count}{minimum number of times the splice variant must be present to
+be display. Any splice variants with counts < min_count will be filtered out.}
 }
 \value{
-
+splice plot
 }
 \description{
 Wrapper around splice plotting function for a nexons output file.
