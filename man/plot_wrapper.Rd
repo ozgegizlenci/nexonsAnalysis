@@ -4,10 +4,17 @@
 \alias{plot_wrapper}
 \title{Plot wrapper}
 \usage{
-plot_wrapper(nexons_output_file, quant_plot = FALSE, min_count = 1)
+plot_wrapper(
+  nexons_output_file,
+  order_splices = NULL,
+  quant_plot = FALSE,
+  min_count = 1
+)
 }
 \arguments{
 \item{nexons_output_file}{gtf file output from nexons}
+
+\item{order_splices}{(one of 'score', 'name', NULL) default NULL. How to order the splices on the y axis.}
 
 \item{quant_plot}{TRUE or FALSE, whether to display a quantitative plot
 alongside the splice picture}

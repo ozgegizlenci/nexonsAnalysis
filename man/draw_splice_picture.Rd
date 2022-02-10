@@ -6,6 +6,7 @@
 \usage{
 draw_splice_picture(
   splice_data,
+  order_splices = NULL,
   gene = "",
   gene_id_col = "Gene_id",
   title_text = "",
@@ -16,6 +17,10 @@ draw_splice_picture(
 \item{splice_data}{dataframe containing columns named variant, strand, score,
 Transcript_id and splice_pattern. Intended to be the output of parse_nexons_gtf
 function.}
+
+\item{order_splices}{(one of 'score', 'name', NULL) default NULL. How to order the splices on the y axis.
+'score' will sort data by score (highest at the top), 'name' will sort data
+alphabetically (with unknowns at the bottom)}
 
 \item{gene}{gene name/id to filter for}
 

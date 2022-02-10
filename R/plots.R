@@ -47,6 +47,9 @@ add_unknown_ids <- function(parsed_splices, Transcript_id_col = "Transcript_id",
 #' @param splice_data dataframe containing columns named variant, strand, score,
 #' Transcript_id and splice_pattern. Intended to be the output of parse_nexons_gtf
 #' function.
+#' @param order_splices (one of 'score', 'name', NULL) default NULL. How to order the splices on the y axis.
+#' 'score' will sort data by score (highest at the top), 'name' will sort data
+#' alphabetically (with unknowns at the bottom)
 #' @param gene gene name/id to filter for
 #' @param gene_id_col name of the column containing the gene names/ids
 #' @param title_text optional title for plot (probably gene name)
@@ -59,7 +62,7 @@ add_unknown_ids <- function(parsed_splices, Transcript_id_col = "Transcript_id",
 #' @examples
 #' NA
 #' @import ggplot2
-draw_splice_picture <- function(splice_data, gene = "", gene_id_col = "Gene_id", title_text = "", quant = FALSE) {
+draw_splice_picture <- function(splice_data, order_splices = NULL, gene = "", gene_id_col = "Gene_id", title_text = "", quant = FALSE) {
 
   if(title_text == "") title_text <- gene
 
@@ -73,6 +76,24 @@ draw_splice_picture <- function(splice_data, gene = "", gene_id_col = "Gene_id",
   splice_data_filt <- add_unknown_ids(splice_data_filt)
   splice_plot_data <- add_exon_loci(splice_data_filt)
 
+  # sort data by score (highest at the top)
+  if(is.null(order_splices)) {
+    print("No ordering of y axis specified")
+  }
+  else {
+    if(order_splices == "score") {
+      splice_plot_data <- splice_plot_data %>%
+        dplyr::arrange(score, Transcript_id) %>%
+        dplyr::mutate(Transcript_id = forcats::as_factor(Transcript_id)) %>%
+        dplyr::mutate(variant = as.integer(Transcript_id))
+    } else if (order_splices == "name") {
+      # sort data alphabetically (with unknowns at the bottom)
+      splice_plot_data <- splice_plot_data %>%
+        dplyr::arrange(desc(startsWith(Transcript_id, "unknown")), desc(Transcript_id)) %>%
+        dplyr::mutate(Transcript_id = forcats::as_factor(Transcript_id)) %>%
+        dplyr::mutate(variant = as.integer(Transcript_id))
+    }
+  }
   splice_segment_data <- splice_plot_data %>%
     dplyr::group_by(variant) %>%
     dplyr::summarise(start=min(start),end=max(end), strand = strand)
@@ -107,3 +128,6 @@ draw_splice_picture <- function(splice_data, gene = "", gene_id_col = "Gene_id",
     return(p)
   }
 }
+
+
+

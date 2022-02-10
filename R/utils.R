@@ -3,6 +3,7 @@
 #' Wrapper around splice plotting function for a nexons output file.
 #'
 #' @param nexons_output_file gtf file output from nexons
+#' @param order_splices (one of 'score', 'name', NULL) default NULL. How to order the splices on the y axis.
 #' @param quant_plot TRUE or FALSE, whether to display a quantitative plot
 #' alongside the splice picture
 #' @param min_count minimum number of times the splice variant must be present to
@@ -17,11 +18,11 @@
 #' plot_wrapper(file, min_count = 5)
 #' # including a quantitative plot
 #' plot_wrapper(file, quant_plot = TRUE, min_count = 5)
-plot_wrapper <- function(nexons_output_file, quant_plot = FALSE, min_count = 1){
+plot_wrapper <- function(nexons_output_file, order_splices = NULL, quant_plot = FALSE, min_count = 1){
 
   nexons_output <- readr::read_tsv(nexons_output_file)
   parsed_splices <- parse_nexons_gtf(nexons_output, min_count = min_count)
-  draw_splice_picture(parsed_splices, quant = quant_plot)
+  draw_splice_picture(parsed_splices, quant = quant_plot, order_splices = order_splices)
 
 }
 
