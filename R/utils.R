@@ -16,8 +16,9 @@
 #' file <- system.file("extdata", "nexons_sirv5_f15.gtf", package = "nexonsAnalysis")
 #' # just the splice picture
 #' plot_wrapper(file, min_count = 5)
+#' plot_wrapper(file, min_count = 5, order_splices = "name")
 #' # including a quantitative plot
-#' plot_wrapper(file, quant_plot = TRUE, min_count = 5)
+#' plot_wrapper(file, quant_plot = TRUE, min_count = 5, order_splices = "score")
 plot_wrapper <- function(nexons_output_file, order_splices = NULL, quant_plot = FALSE, min_count = 1){
 
   nexons_output <- readr::read_tsv(nexons_output_file)
