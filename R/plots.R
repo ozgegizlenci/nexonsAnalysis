@@ -11,7 +11,7 @@
 #' NA
 plot_quant <- function(splice_df){
     ggplot2::ggplot(splice_df, ggplot2::aes(x=variant, y=score, label=Transcript_id)) +
-    ggplot2::geom_abline(slope = 1, intercept = 0, color="grey") +
+    #ggplot2::geom_abline(slope = 1, intercept = 0, color="grey") +
     ggplot2::geom_point(size=4) +
     #ggtitle(gene_name)+
     ggrepel::geom_text_repel()
