@@ -73,7 +73,8 @@ p <- purrr::map(parsed_splices, draw_splice_picture, quant=TRUE, order_splices =
 ```
 
 ![](man/figures/README-unnamed-chunk-5-1.png)![](man/figures/README-unnamed-chunk-5-2.png)
-\### Adding titles to the plots
+
+### Adding titles to the plots
 
 ``` r
 file <- system.file("extdata", "sirv5.txt", package = "nexonsAnalysis")
