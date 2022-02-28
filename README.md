@@ -30,7 +30,12 @@ plot_wrapper(file, min_count = 5, quant_plot = TRUE)
 
 The above example can be reproduced using the individual functions that
 `plot_wrapper()` is a wrapper around. This allows more options to be
-specified.
+specified. The `order_splices` argument in draw_splice_picture accepts
+one of (one of ‘score’, ‘name’, NULL) default NULL. This refers to the
+ordering of the splices on the y axis (on the left hand plot), ‘score’
+will sort data by score (highest at the top), ‘name’ will sort data
+alphabetically (with unknowns at the bottom). `draw_splice_picture` also
+allows a particular gene to be specified with the `gene` argument.
 
 ``` r
 file <- system.file("extdata", "nexons_sirv5_f15.gtf", package = "nexonsAnalysis")
@@ -48,7 +53,6 @@ draw_splice_picture(parsed_splices, quant = TRUE, order_splices = "score", gene=
 ``` r
 file <- system.file("extdata", "sirv5.txt", package = "nexonsAnalysis")
 nexons_output <- readr::read_delim(file)
-# To plot the splice pictures for 1 sample
 parsed_splices <- parse_default_nexons(nexons_output, score_column = "seqs_sirv5_minimap.sam")
 draw_splice_picture(parsed_splices, quant = TRUE, order_splices = "name")
 ```
@@ -65,19 +69,20 @@ nexons_output <- readr::read_delim(file)
 # get names of datasets - there are 2 in this file
 count_columns <- tail(colnames(nexons_output), n=2)
 parsed_splices <- purrr::map(count_columns, parse_default_nexons, nexons_output=nexons_output)
-purrr::map(parsed_splices, draw_splice_picture, quant=TRUE, order_splices = "score")
+p <- purrr::map(parsed_splices, draw_splice_picture, quant=TRUE, order_splices = "score")
 ```
 
 ![](man/figures/README-unnamed-chunk-5-1.png)![](man/figures/README-unnamed-chunk-5-2.png)
+\### Adding titles to the plots
 
-    FALSE [[1]]
-    FALSE TableGrob (1 x 2) "arrange": 2 grobs
-    FALSE   z     cells    name           grob
-    FALSE 1 1 (1-1,1-1) arrange gtable[layout]
-    FALSE 2 2 (1-1,2-2) arrange gtable[layout]
-    FALSE 
-    FALSE [[2]]
-    FALSE TableGrob (1 x 2) "arrange": 2 grobs
-    FALSE   z     cells    name           grob
-    FALSE 1 1 (1-1,1-1) arrange gtable[layout]
-    FALSE 2 2 (1-1,2-2) arrange gtable[layout]
+``` r
+file <- system.file("extdata", "sirv5.txt", package = "nexonsAnalysis")
+nexons_output <- readr::read_delim(file)
+# get names of datasets - there are 2 in this file
+count_columns <- tail(colnames(nexons_output), n=2)
+parsed_splices <- purrr::map(count_columns, parse_default_nexons, nexons_output=nexons_output) |>
+  purrr::set_names(count_columns)
+p <- purrr::imap(parsed_splices, ~ draw_splice_picture(.x, title_text=.y, quant=TRUE, order_splices = "score"))
+```
+
+![](man/figures/README-unnamed-chunk-6-1.png)![](man/figures/README-unnamed-chunk-6-2.png)
