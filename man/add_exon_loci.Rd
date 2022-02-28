@@ -15,7 +15,7 @@ start and end of each exon in the splice pattern
 }
 \description{
 parses splice patterns, adding 2 columns (start and end of exon) to a dataframe
-containin the splice patterns
+containing the splice patterns
 }
 \examples{
 NA
