@@ -38,5 +38,8 @@ ggplot object
 Creates plot showing splice variants
 }
 \examples{
-NA
+file <- system.file("extdata", "nexons_sirv5_f15.gtf", package = "nexonsAnalysis")
+nexons_output <- readr::read_delim(file)
+parsed_splices <- parse_nexons_gtf(nexons_output, min_count = 3)
+draw_splice_picture(parsed_splices, quant = TRUE, order_splices = "score", gene="SIRV5")
 }
