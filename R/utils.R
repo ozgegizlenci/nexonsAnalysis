@@ -56,13 +56,47 @@ parse_nexons_gtf <- function(nexon_gtf, min_count = 1){
     dplyr::group_by(Gene_id) %>%
     dplyr::mutate(variant = 1:dplyr::n()) %>%
     dplyr::ungroup()
+}
 
+
+#' Parse default nexons output
+#'
+#' Takes a default nexons output file (not a gtf - see parse_nexons_gtf) and makes it
+#' compatible, so that it can be used as input to draw_splice_picture
+#'
+#' @param nexons_output dataframe containing columns named "Gene ID", "Strand", "SplicePattern", "Transcript id" and one containing the scores, the name of which is specified in the score_column argument
+#' @param score_column name of the column containing the scores
+#' @param min_count minimum count for the splice pattern to be included (default: 1)
+#'
+#' @return tibble containing the columns "variant", "strand", "score", "Transcript_id", "Gene_id", "splice_pattern"
+#' @export
+#'
+#' @examples
+#' file <- system.file("extdata", "sirv5.txt", package = "nexonsAnalysis")
+#' nexons_output <- readr::read_delim(file)
+#' parsed_splices <- parse_default_nexons(nexons_output, score_column = "seqs_sirv5_minimap.sam")
+
+parse_default_nexons <- function(nexons_output, score_column, min_count = 1) {
+
+  nexons_output |>
+    dplyr::rename(
+      Gene_id = 'Gene ID',
+      splice_pattern = SplicePattern,
+      Transcript_id = 'Transcript id',
+      strand = Strand,
+      score = .data[[score_column]]
+    ) |>
+    dplyr::arrange(Transcript_id) |>
+    dplyr::filter(score >= min_count) |>
+    dplyr::group_by(Gene_id) |>
+    dplyr::mutate(variant = 1:dplyr::n()) |>
+    dplyr::ungroup()
 }
 
 #' Add exon loci
 #'
 #' parses splice patterns, adding 2 columns (start and end of exon) to a dataframe
-#' containin the splice patterns
+#' containing the splice patterns
 #'
 #' @param splice_data dataframe that contains a column named splice_pattern
 #'
