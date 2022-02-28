@@ -32,6 +32,7 @@ Wrapper around splice plotting function for a nexons output file.
 file <- system.file("extdata", "nexons_sirv5_f15.gtf", package = "nexonsAnalysis")
 # just the splice picture
 plot_wrapper(file, min_count = 5)
+plot_wrapper(file, min_count = 5, order_splices = "name")
 # including a quantitative plot
-plot_wrapper(file, quant_plot = TRUE, min_count = 5)
+plot_wrapper(file, quant_plot = TRUE, min_count = 5, order_splices = "score")
 }
