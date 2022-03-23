@@ -105,5 +105,5 @@ file <- system.file("extdata", "sirv5.txt", package = "nexonsAnalysis")
 nexons_output <- readr::read_delim(file)
 parsed_splices <- parse_default_nexons(nexons_output, score_column = "seqs_sirv5_minimap.sam")
 parsed_default_with_trunc <- identifyPotentialTruncations(parsed_splices, flexibility = 10)
-knitr::kable(parsed_default_with_trunc)
+DT::datatable(parsed_default_with_trunc)
 ```
