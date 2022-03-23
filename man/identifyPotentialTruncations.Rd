@@ -18,7 +18,7 @@ modified tibble with additional column named truncation_origin
 Identifies whether transcripts might be truncations of other transcripts.
 }
 \examples{
-file <- system.file("extdata", "inst/extdata/nexons_sirv5_f15_trunc.txt", package = "nexonsAnalysis")
+file <- system.file("extdata", "nexons_sirv5_f15_trunc.txt", package = "nexonsAnalysis")
 nexons_output <- readr::read_delim(file)
 parsed_splices <- parse_nexons_gtf(nexons_output, min_count = 3)
 parsed_with_trunc <- identifyPotentialTruncations(parsed_splices)

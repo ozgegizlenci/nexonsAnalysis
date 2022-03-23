@@ -88,36 +88,36 @@ p <- purrr::imap(parsed_splices, ~ draw_splice_picture(.x, title_text=.y, quant=
 
 ![](man/figures/README-unnamed-chunk-6-1.png)![](man/figures/README-unnamed-chunk-6-2.png)
 
-## 
+## Flagging up potentially truncated reads
 
-Flagging up potentially truncated reads
+The function `identifyPotentialTruncations` identifies whether
+transcripts might be truncations of other transcripts. It adds an
+additional column to the tibble named truncation_origin.
 
 ``` r
-devtools::load_all()
-file <- system.file("extdata", "inst/extdata/nexons_sirv5_f15_trunc.txt", package = "nexonsAnalysis")
-file <- "inst/extdata/nexons_sirv5_f15_trunc.txt" #!! temp - remove this
+file <- system.file("extdata", "nexons_sirv5_f15_trunc.txt", package = "nexonsAnalysis")
 nexons_output <- readr::read_delim(file)
 parsed_splices <- parse_nexons_gtf(nexons_output, min_count = 3)
 
-(parsed_with_trunc <- identifyPotentialTruncations(parsed_splices))
+parsed_with_trunc <- identifyPotentialTruncations(parsed_splices, flexibility = 10)
+knitr::kable(parsed_with_trunc)
 ```
 
-    FALSE # A tibble: 16 x 7
-    FALSE    strand score Transcript_id Gene_id splice_pattern    variant truncation_orig~
-    FALSE    <chr>  <dbl> <chr>         <chr>   <chr>               <dbl> <chr>           
-    FALSE  1 +         99 SIRV501       SIRV5   1149:1988-2033:2~       1 ""              
-    FALSE  2 +         96 SIRV502       SIRV5   1149:1988-2033:2~       2 ""              
-    FALSE  3 +        100 SIRV504       SIRV5   13606                   3 ""              
-    FALSE  4 +         92 SIRV505       SIRV5   1149:1988-2033:2~       4 ""              
-    FALSE  5 +        200 SIRV506       SIRV5   1149:1988               5 "1, 2, 4, 7, 9,~
-    FALSE  6 +         95 SIRV507       SIRV5   1149:1926-2033:2~       6 ""              
-    FALSE  7 +         94 SIRV508       SIRV5   1149:1988-2033:2~       7 ""              
-    FALSE  8 +        100 SIRV509       SIRV5   8381:8455-8585:1~       8 ""              
-    FALSE  9 +         93 SIRV510       SIRV5   1149:1988-2033:2~       9 ""              
-    FALSE 10 +        100 SIRV512       SIRV5   2406                   10 ""              
-    FALSE 11 +        100 unknown       SIRV5   8585:10859             11 "1, 2, 4, 7, 8,~
-    FALSE 12 +         40 unknown       SIRV5   1154:1987-2040:2~      12 "4, 7, 9"       
-    FALSE 13 +         23 unknown       SIRV5   1149:1988-2033:2~      13 "4, 7, 9, 12"   
-    FALSE 14 +          4 unknown       SIRV5   1149:1926-2047:2~      14 ""              
-    FALSE 15 +          3 unknown       SIRV5   1149:1986-2047:2~      15 ""              
-    FALSE 16 +          3 unknown       SIRV5   1149:1988-2047:2~      16 ""
+| strand | score | Transcript_id | Gene_id | splice_pattern                                                                                                                                                               | variant | truncation_origin             |
+|:--|--:|:----|:---|:----------------------------------------------|---:|:--------|
+| \+     |    99 | SIRV501       | SIRV5   | 1149:1988-2033:2120-2315:3299-3404:3484-3643:5381-5450:5544-5626:6112-6169:6328-6452:6659-6722:6827-6957:7145-7307:7682-7762:7871-8016:8278-8381:8455-8585:10859             |       1 |                               |
+| \+     |    96 | SIRV502       | SIRV5   | 1149:1988-2033:2120-2156:2271-2488:3299-3404:3484-3643:5381-5450:5544-5626:6112-6169:6328-6452:6659-6722:6827-6957:7145-7307:7682-7762:7871-8016:8278-8381:8455-8585:10859   |       2 |                               |
+| \+     |   100 | SIRV504       | SIRV5   | 13606                                                                                                                                                                        |       3 |                               |
+| \+     |    92 | SIRV505       | SIRV5   | 1149:1988-2033:2120-2156:2271-2315:3299-3404:3484-3643:5381-5450:5544-5626:6112-6169:6328-6452:6827-6957:7145-7307:7682-7762:7871-8381:8455-8585:10859                       |       4 |                               |
+| \+     |   200 | SIRV506       | SIRV5   | 1149:1988                                                                                                                                                                    |       5 | 1, 2, 4, 7, 9, 12, 13, 15, 16 |
+| \+     |    95 | SIRV507       | SIRV5   | 1149:1926-2033:2120-2156:2271-2315:3299-3404:3484                                                                                                                            |       6 |                               |
+| \+     |    94 | SIRV508       | SIRV5   | 1149:1988-2033:2120-2156:2271-2315:3299-3404:3484-3643:5381-5450:5544-5626:6112-6169:6328-6452:6659-6722:6827-6957:7145-7307:7682-7762:7871-8381:8455-8585:10859             |       7 |                               |
+| \+     |   100 | SIRV509       | SIRV5   | 8381:8455-8585:10859-10991:11312                                                                                                                                             |       8 |                               |
+| \+     |    93 | SIRV510       | SIRV5   | 1149:1988-2033:2120-2156:2271-2315:3299-3404:3484-3643:5381-5450:5544-5626:6112-6169:6328-6452:6827-6957:7145-7307:7682-7762:7871-8016:8278-8381:8455-8585:10859-10991:11134 |       9 |                               |
+| \+     |   100 | SIRV512       | SIRV5   | 2406                                                                                                                                                                         |      10 |                               |
+| \+     |   100 | unknown       | SIRV5   | 8585:10859                                                                                                                                                                   |      11 | 1, 2, 4, 7, 8, 9, 15, 16      |
+| \+     |    40 | unknown       | SIRV5   | 1154:1987-2040:2123-2156:2274-2315:3299-3409:3484-3643:5381-5450:5544                                                                                                        |      12 | 4, 7, 9                       |
+| \+     |    23 | unknown       | SIRV5   | 1149:1988-2033:2120-2156:2271-2315:3299-3404:3484                                                                                                                            |      13 | 4, 7, 9, 12                   |
+| \+     |     4 | unknown       | SIRV5   | 1149:1926-2047:2265-2315:3299-3404:3484                                                                                                                                      |      14 |                               |
+| \+     |     3 | unknown       | SIRV5   | 1149:1986-2047:2265-2315:3299-3404:3484-3643:5381-5450:5544-5626:6112-6169:6328-6452:6827-6957:7145-7307:7682-7776:7881-8381:8455-8585:10859                                 |      15 |                               |
+| \+     |     3 | unknown       | SIRV5   | 1149:1988-2047:2265-2315:3299-3404:3484-3643:5381-5450:5544-5626:6112-6169:6328-6452:6827-6957:7145-7307:7682-7762:7871-8016:8280-8381:8455-8585:10859-10991:11134           |      16 |                               |

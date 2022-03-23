@@ -130,7 +130,7 @@ add_exon_loci <- function(splice_data){
 #' @export
 #'
 #' @examples
-#' file <- system.file("extdata", "inst/extdata/nexons_sirv5_f15_trunc.txt", package = "nexonsAnalysis")
+#' file <- system.file("extdata", "nexons_sirv5_f15_trunc.txt", package = "nexonsAnalysis")
 #' nexons_output <- readr::read_delim(file)
 #' parsed_splices <- parse_nexons_gtf(nexons_output, min_count = 3)
 #' parsed_with_trunc <- identifyPotentialTruncations(parsed_splices)
@@ -151,14 +151,13 @@ identifyPotentialTruncations <- function(parsed_splices, flexibility = 10){
 
   tibble_results <- purrr::map_chr(individual_results, ~paste(.x, collapse = ", ")) %>%
     tibble::enframe(name = "variant", value = "truncation_origin") %>%
-    dplyr::mutate(variant = as.numeric(variant))
+    dplyr::mutate(variant = as.numeric(variant)) %>%
+    dplyr::mutate(truncation_origin = dplyr::if_else(truncation_origin == "", "none", truncation_origin))
 
   parsed_splices %>%
     dplyr::left_join(tibble_results)
 
 }
-
-
 
 #' spliceStartsEnds
 #' Takes a splice string in the format "8381:8455-8585:10859-10991:11312" and converts it to a tibble of start and end points of splice junctions.
@@ -183,14 +182,14 @@ spliceStartsEnds <- function(splice_string){
 #'
 #' @param set1 tibble with column names junction_no, start, end
 #' @param set2 tibble with column names junction_no, start, end
-#' @param flexibility integer value - number of bases away to still be classified as a match. For exact matches set flexibility to 0. Default: 0
+#' @param flexibility integer value - number of bases away to still be classified as a match. For exact matches set flexibility to 0.
 #'
 #' @return vector of TRUE and FALSE values
 #' @export
 #'
 #' @examples
 #' NA
-checkJunctionMatches <- function(set1, set2, flexibility=0){
+checkJunctionMatches <- function(set1, set2, flexibility){
   set1$start <= set2$start+flexibility &
     set1$start >= set2$start-flexibility &
     set1$end <= set2$end+flexibility &
@@ -205,14 +204,14 @@ checkJunctionMatches <- function(set1, set2, flexibility=0){
 #'
 #' @param other_set tibble - one set of splice junctions
 #' @param potential_truncs tibble - one set of splice junctions to test to see if they might be truncations
-#' @param flexibility integer value - number of bases away to still be classified as a match. For exact matches set flexibility to 0. Default: 0
+#' @param flexibility integer value - number of bases away to still be classified as a match. For exact matches set flexibility to 0.
 #'
 #' @return TRUE or FALSE value
 #' @export
 #'
 #' @examples
 #' NA
-checkTruncation <- function(other_set, potential_truncs, flexibility=0) {
+checkTruncation <- function(other_set, potential_truncs, flexibility) {
 
   if(nrow(potential_truncs) >= nrow(other_set)) return(FALSE) # if potential_trunc is longer then reject
 

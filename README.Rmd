@@ -11,7 +11,8 @@ R functions for analysis and graphical representation of output from nexons
 ```{r setup, include=FALSE}
 library(knitr)
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, comment = FALSE, fig.path = "man/figures/README-")
-devtools::load_all()
+library(nexonsAnalysis)
+#devtools::load_all()
 ```
 
 ```{r, eval = FALSE}
@@ -80,17 +81,17 @@ parsed_splices <- purrr::map(count_columns, parse_default_nexons, nexons_output=
 p <- purrr::imap(parsed_splices, ~ draw_splice_picture(.x, title_text=.y, quant=TRUE, order_splices = "score"))
 ```
 
-##
+## Flagging up potentially truncated reads
 
-Flagging up potentially truncated reads
+The function `identifyPotentialTruncations` identifies whether transcripts might be truncations of other transcripts. 
+It adds an additional column to the tibble named truncation_origin. 
 
 ```{r, fig.width = 12, fig.height = 4}
-devtools::load_all()
-file <- system.file("extdata", "inst/extdata/nexons_sirv5_f15_trunc.txt", package = "nexonsAnalysis")
-file <- "inst/extdata/nexons_sirv5_f15_trunc.txt" #!! temp - remove this
+file <- system.file("extdata", "nexons_sirv5_f15_trunc.txt", package = "nexonsAnalysis")
 nexons_output <- readr::read_delim(file)
 parsed_splices <- parse_nexons_gtf(nexons_output, min_count = 3)
 
-(parsed_with_trunc <- identifyPotentialTruncations(parsed_splices))
+parsed_with_trunc <- identifyPotentialTruncations(parsed_splices, flexibility = 10)
+knitr::kable(parsed_with_trunc)
 ```
 
