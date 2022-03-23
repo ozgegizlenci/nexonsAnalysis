@@ -85,6 +85,7 @@ p <- purrr::imap(parsed_splices, ~ draw_splice_picture(.x, title_text=.y, quant=
 
 The function `identifyPotentialTruncations` identifies whether transcripts might be truncations of other transcripts. 
 It adds an additional column to the tibble named truncation_origin. 
+The flexibility parameter refers to the difference in location (number of bases) to still be classified as a match. For exact matches set flexibility to 0. Default is 10.
 
 ```{r, fig.width = 12, fig.height = 4}
 file <- system.file("extdata", "nexons_sirv5_f15_trunc.txt", package = "nexonsAnalysis")
@@ -95,3 +96,14 @@ parsed_with_trunc <- identifyPotentialTruncations(parsed_splices, flexibility = 
 DT::datatable(parsed_with_trunc)
 ```
 
+## Flagging up truncations
+
+This also works with the default nexons output as well as the gtf output.
+
+```{r}
+file <- system.file("extdata", "sirv5.txt", package = "nexonsAnalysis")
+nexons_output <- readr::read_delim(file)
+parsed_splices <- parse_default_nexons(nexons_output, score_column = "seqs_sirv5_minimap.sam")
+parsed_default_with_trunc <- identifyPotentialTruncations(parsed_splices, flexibility = 10)
+knitr::kable(parsed_default_with_trunc)
+```

@@ -92,7 +92,10 @@ p <- purrr::imap(parsed_splices, ~ draw_splice_picture(.x, title_text=.y, quant=
 
 The function `identifyPotentialTruncations` identifies whether
 transcripts might be truncations of other transcripts. It adds an
-additional column to the tibble named truncation_origin.
+additional column to the tibble named truncation_origin. The flexibility
+parameter refers to the difference in location (number of bases) to
+still be classified as a match. For exact matches set flexibility to 0.
+Default is 10.
 
 ``` r
 file <- system.file("extdata", "nexons_sirv5_f15_trunc.txt", package = "nexonsAnalysis")
@@ -104,3 +107,28 @@ DT::datatable(parsed_with_trunc)
 ```
 
 ![](man/figures/README-unnamed-chunk-7-1.png)
+
+## Flagging up truncations
+
+This also works with the default nexons output as well as the gtf
+output.
+
+``` r
+file <- system.file("extdata", "sirv5.txt", package = "nexonsAnalysis")
+nexons_output <- readr::read_delim(file)
+parsed_splices <- parse_default_nexons(nexons_output, score_column = "seqs_sirv5_minimap.sam")
+parsed_default_with_trunc <- identifyPotentialTruncations(parsed_splices, flexibility = 10)
+knitr::kable(parsed_default_with_trunc)
+```
+
+| Gene_id | Gene Name | Chr   | strand | splice_pattern                                                                                                                                                               | Transcript_id | seqs_sirv5_12.sam | score | variant | truncation_origin |
+|:--|:---|:--|:--|:----------------------------------------|:----|-----:|--:|--:|:-----|
+| SIRV5   | SIRV5     | SIRV5 | \+     | 1149:1988-2033:2120-2315:3299-3404:3484-3643:5381-5450:5544-5626:6112-6169:6328-6452:6659-6722:6827-6957:7145-7307:7682-7762:7871-8016:8278-8381:8455-8585:10859             | SIRV501       |                 1 |     1 |       1 | none              |
+| SIRV5   | SIRV5     | SIRV5 | \+     | 1149:1988-2033:2120-2156:2271-2488:3299-3404:3484-3643:5381-5450:5544-5626:6112-6169:6328-6452:6659-6722:6827-6957:7145-7307:7682-7762:7871-8016:8278-8381:8455-8585:10859   | SIRV502       |                 2 |     1 |       2 | none              |
+| SIRV5   | SIRV5     | SIRV5 | \+     | 1149:1988-2033:2120-2156:2271-2315:3299-3404:3484-3643:5381-5450:5544-5626:6112-6169:6328-6452:6827-6957:7145-7307:7682-7762:7871-8381:8455-8585:10859                       | SIRV505       |                 0 |     1 |       3 | none              |
+| SIRV5   | SIRV5     | SIRV5 | \+     | 1149:1988                                                                                                                                                                    | SIRV506       |                 0 |     2 |       4 | 1, 2, 3, 6, 8     |
+| SIRV5   | SIRV5     | SIRV5 | \+     | 1149:1926-2033:2120-2156:2271-2315:3299-3404:3484                                                                                                                            | SIRV507       |                 0 |     1 |       5 | none              |
+| SIRV5   | SIRV5     | SIRV5 | \+     | 1149:1988-2033:2120-2156:2271-2315:3299-3404:3484-3643:5381-5450:5544-5626:6112-6169:6328-6452:6659-6722:6827-6957:7145-7307:7682-7762:7871-8381:8455-8585:10859             | SIRV508       |                 0 |     1 |       6 | none              |
+| SIRV5   | SIRV5     | SIRV5 | \+     | 8381:8455-8585:10859-10991:11312                                                                                                                                             | SIRV509       |                 0 |     1 |       7 | none              |
+| SIRV5   | SIRV5     | SIRV5 | \+     | 1149:1988-2033:2120-2156:2271-2315:3299-3404:3484-3643:5381-5450:5544-5626:6112-6169:6328-6452:6827-6957:7145-7307:7682-7762:7871-8016:8278-8381:8455-8585:10859-10991:11134 | SIRV510       |                 0 |     1 |       8 | none              |
+| SIRV5   | SIRV5     | SIRV5 | \+     | 8585:10859                                                                                                                                                                   | unknown       |                 0 |     1 |       9 | 1, 2, 3, 6, 7, 8  |
