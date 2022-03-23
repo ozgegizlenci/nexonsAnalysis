@@ -92,6 +92,6 @@ nexons_output <- readr::read_delim(file)
 parsed_splices <- parse_nexons_gtf(nexons_output, min_count = 3)
 
 parsed_with_trunc <- identifyPotentialTruncations(parsed_splices, flexibility = 10)
-knitr::kable(parsed_with_trunc)
+DT::datatable(parsed_with_trunc)
 ```
 
