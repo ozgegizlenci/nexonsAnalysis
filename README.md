@@ -87,3 +87,37 @@ p <- purrr::imap(parsed_splices, ~ draw_splice_picture(.x, title_text=.y, quant=
 ```
 
 ![](man/figures/README-unnamed-chunk-6-1.png)![](man/figures/README-unnamed-chunk-6-2.png)
+
+## 
+
+Flagging up potentially truncated reads
+
+``` r
+devtools::load_all()
+file <- system.file("extdata", "inst/extdata/nexons_sirv5_f15_trunc.txt", package = "nexonsAnalysis")
+file <- "inst/extdata/nexons_sirv5_f15_trunc.txt" #!! temp - remove this
+nexons_output <- readr::read_delim(file)
+parsed_splices <- parse_nexons_gtf(nexons_output, min_count = 3)
+
+(parsed_with_trunc <- identifyPotentialTruncations(parsed_splices))
+```
+
+    FALSE # A tibble: 16 x 7
+    FALSE    strand score Transcript_id Gene_id splice_pattern    variant truncation_orig~
+    FALSE    <chr>  <dbl> <chr>         <chr>   <chr>               <dbl> <chr>           
+    FALSE  1 +         99 SIRV501       SIRV5   1149:1988-2033:2~       1 ""              
+    FALSE  2 +         96 SIRV502       SIRV5   1149:1988-2033:2~       2 ""              
+    FALSE  3 +        100 SIRV504       SIRV5   13606                   3 ""              
+    FALSE  4 +         92 SIRV505       SIRV5   1149:1988-2033:2~       4 ""              
+    FALSE  5 +        200 SIRV506       SIRV5   1149:1988               5 "1, 2, 4, 7, 9,~
+    FALSE  6 +         95 SIRV507       SIRV5   1149:1926-2033:2~       6 ""              
+    FALSE  7 +         94 SIRV508       SIRV5   1149:1988-2033:2~       7 ""              
+    FALSE  8 +        100 SIRV509       SIRV5   8381:8455-8585:1~       8 ""              
+    FALSE  9 +         93 SIRV510       SIRV5   1149:1988-2033:2~       9 ""              
+    FALSE 10 +        100 SIRV512       SIRV5   2406                   10 ""              
+    FALSE 11 +        100 unknown       SIRV5   8585:10859             11 "1, 2, 4, 7, 8,~
+    FALSE 12 +         40 unknown       SIRV5   1154:1987-2040:2~      12 "4, 7, 9"       
+    FALSE 13 +         23 unknown       SIRV5   1149:1988-2033:2~      13 "4, 7, 9, 12"   
+    FALSE 14 +          4 unknown       SIRV5   1149:1926-2047:2~      14 ""              
+    FALSE 15 +          3 unknown       SIRV5   1149:1986-2047:2~      15 ""              
+    FALSE 16 +          3 unknown       SIRV5   1149:1988-2047:2~      16 ""

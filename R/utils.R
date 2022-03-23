@@ -117,3 +117,128 @@ add_exon_loci <- function(splice_data){
     dplyr::mutate(end=as.integer(end)) %>%
     dplyr::mutate(end=dplyr::if_else(is.na(end),start,end))
 }
+
+
+#' identifyPotentialTruncations
+#'
+#' Identifies whether transcripts might be truncations of other transcripts.
+#'
+#' @param parsed_splices tibble containing set of splices - output from \code{\link{parse_nexons_gtf}}
+#' @param flexibility integer value - number of bases away to still be classified as a match. For exact matches set flexibility to 0. Default: 10
+#'
+#' @return modified tibble with additional column named truncation_origin
+#' @export
+#'
+#' @examples
+#' file <- system.file("extdata", "inst/extdata/nexons_sirv5_f15_trunc.txt", package = "nexonsAnalysis")
+#' nexons_output <- readr::read_delim(file)
+#' parsed_splices <- parse_nexons_gtf(nexons_output, min_count = 3)
+#' parsed_with_trunc <- identifyPotentialTruncations(parsed_splices)
+#'
+identifyPotentialTruncations <- function(parsed_splices, flexibility = 10){
+  # extract splice patterns and variant numbers from parsed_splices.
+  # put them into a list where names are variant names/numbers
+  all_junctions <- parsed_splices %>%
+    dplyr::select(variant, splice_pattern) %>%
+    tibble::deframe() %>%
+    purrr::map(.f=spliceStartsEnds)
+
+  trunc_results <- purrr::map(.x=all_junctions, function(trunc) {
+    purrr::map_lgl(.x=all_junctions, .f=checkTruncation, potential_truncs=trunc, flexibility=flexibility)
+  })
+
+  individual_results <- purrr::map(trunc_results, ~as.vector(which(.x)))
+
+  tibble_results <- purrr::map_chr(individual_results, ~paste(.x, collapse = ", ")) %>%
+    tibble::enframe(name = "variant", value = "truncation_origin") %>%
+    dplyr::mutate(variant = as.numeric(variant))
+
+  parsed_splices %>%
+    dplyr::left_join(tibble_results)
+
+}
+
+
+
+#' spliceStartsEnds
+#' Takes a splice string in the format "8381:8455-8585:10859-10991:11312" and converts it to a tibble of start and end points of splice junctions.
+#' Used internally by \code{\link{identifyPotentialTruncations}} function.
+#'
+#' @param splice_string set of splices in the format 8381:8455-8585:10859-10991:11312"
+#'
+#' @return tibble of start and end points of splice junctions
+#' @export
+#'
+#' @examples
+#' splice <- "8381:8455-8585:10859-10991:11312"
+#' spliceStartsEnds(splice)
+spliceStartsEnds <- function(splice_string){
+  splices <- stringr::str_split(splice_string, pattern = "-")[[1]]
+  tibble::enframe(splices, name = "junction_no") %>%
+    tidyr::separate(value, into = c("start", "end"), sep = ":", convert=TRUE)
+}
+
+#' Check junction matches
+#' Check if 2 sets of splice junctions match.
+#'
+#' @param set1 tibble with column names junction_no, start, end
+#' @param set2 tibble with column names junction_no, start, end
+#' @param flexibility integer value - number of bases away to still be classified as a match. For exact matches set flexibility to 0. Default: 0
+#'
+#' @return vector of TRUE and FALSE values
+#' @export
+#'
+#' @examples
+#' NA
+checkJunctionMatches <- function(set1, set2, flexibility=0){
+  set1$start <= set2$start+flexibility &
+    set1$start >= set2$start-flexibility &
+    set1$end <= set2$end+flexibility &
+    set1$end >= set2$end-flexibility
+}
+
+
+#' checkTruncation
+#'
+#' Checks one set of splice junctions against another set, to see if one is a potential truncation of the other.
+#' Does an initial check for the first splice junction location, then do an exact test (within flexibility parameter) for vectors of the same length.
+#'
+#' @param other_set tibble - one set of splice junctions
+#' @param potential_truncs tibble - one set of splice junctions to test to see if they might be truncations
+#' @param flexibility integer value - number of bases away to still be classified as a match. For exact matches set flexibility to 0. Default: 0
+#'
+#' @return TRUE or FALSE value
+#' @export
+#'
+#' @examples
+#' NA
+checkTruncation <- function(other_set, potential_truncs, flexibility=0) {
+
+  if(nrow(potential_truncs) >= nrow(other_set)) return(FALSE) # if potential_trunc is longer then reject
+
+  # check for first junction match
+  junction1 <- checkJunctionMatches(dplyr::slice(potential_truncs, 1), other_set, flexibility=flexibility)
+  if(all(junction1 == FALSE)) return(FALSE) # reject if no match
+
+  # extract the first junction number that mapped
+  junction1_no <- dplyr::filter(other_set, junction1) %>% dplyr::pull(junction_no)
+
+  # subset consecutive junctions
+  subset <- other_set %>%
+    dplyr::slice(junction1_no:dplyr::n()) %>%
+    dplyr::slice_head(n=nrow(potential_truncs))
+
+  # test whole set to see if each junction matches
+  x <- checkJunctionMatches(potential_truncs, subset, flexibility=flexibility)
+
+  if(any(x == FALSE)) return(FALSE)
+  return(TRUE) # potential truncation
+}
+
+
+
+
+
+
+
+
