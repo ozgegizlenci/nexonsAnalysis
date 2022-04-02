@@ -145,3 +145,71 @@ draw_splice_picture <- function(splice_data, order_splices = NULL, gene = "", ge
 
 
 
+#Draw variants and quantification with the truncated ones annotated with different shades:
+
+draw_splice_picture_trunc <- function(splice_data, order_splices = NULL, gene = "", gene_id_col = "Gene_id", title_text = "", quant = FALSE) {
+  
+  if(title_text == "") title_text <- gene
+  
+  splice_data_filt <- if(gene %in% splice_data[[gene_id_col]]) {
+    dplyr::filter(splice_data, .data[[gene_id_col]] == gene)
+  } else if (nchar(gene) > 0){
+    warning(message = paste("couldn't find gene name", gene, "in dataset, check it matches exactly. \n Continuing without filtering"))
+    splice_data
+  } else splice_data
+  
+  splice_data_filt <- add_unknown_ids(splice_data_filt)
+  splice_plot_data <- add_exon_loci(splice_data_filt)
+  
+  # sort data by score (highest at the top)
+  if(is.null(order_splices)) {
+    print("No ordering of y axis specified")
+  }
+  else {
+    if(order_splices == "score") {
+      splice_plot_data <- splice_plot_data %>%
+        dplyr::arrange(score, Transcript_id) %>%
+        dplyr::mutate(Transcript_id = forcats::as_factor(Transcript_id)) %>%
+        dplyr::mutate(variant = as.integer(Transcript_id))
+    } else if (order_splices == "name") {
+      # sort data alphabetically (with unknowns at the bottom)
+      splice_plot_data <- splice_plot_data %>%
+        dplyr::arrange(desc(startsWith(Transcript_id, "unknown")), desc(Transcript_id)) %>%
+        dplyr::mutate(Transcript_id = forcats::as_factor(Transcript_id)) %>%
+        dplyr::mutate(variant = as.integer(Transcript_id))
+    }
+  }
+  splice_segment_data <- splice_plot_data %>%
+    dplyr::group_by(variant) %>%
+    dplyr::summarise(start=min(start),end=max(end), strand = strand)
+  
+  if(all(splice_segment_data$strand == "+")){
+    strand_colour <- "red3"
+  } else if(all(splice_segment_data$strand == "-")) {
+    strand_colour <- "blue3"
+  } else {
+    strand_colour <- c("blue3", "red3")
+  }
+  
+  p <- splice_plot_data %>%
+    ggplot(aes(xmin = start, xmax = end, ymin = variant+0.05,
+               ymax = variant+0.95, fill = strand, colour = strand)) +
+    geom_segment(data=splice_segment_data,
+                 aes(x=start, xend=end, y=variant+0.5, yend=variant+0.5))+
+    geom_rect(alpha=ifelse(splice_plot_data$truncation_origin=="none", 1.0,ifelse(splice_plot_data$truncation_origin!="none", 0.4,1.0)))+#fill=strand,colour=shade) +
+    scale_y_continuous(
+      breaks=splice_plot_data$variant+0.5,
+      labels = paste(splice_plot_data$Transcript_id)) +
+    ylab("") +
+    xlab("Genomic Position") +
+    ggtitle(title_text) +
+    scale_fill_manual(values = strand_colour) +
+    scale_colour_manual(values = strand_colour)
+  
+  if(quant){
+    quant_plot <- plot_quant_trunc(splice_data_filt)
+    return(invisible(gridExtra::grid.arrange(p, quant_plot, nrow=1)))
+  } else {
+    return(p)
+  }
+}
