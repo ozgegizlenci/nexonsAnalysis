@@ -18,6 +18,16 @@ plot_quant <- function(splice_df){
 }
 
 
+#Plot for labeling the truncated variants in the quantification plots:
+
+plot_quant_trunc <- function(splice_df){
+  qtp<- ggplot2::ggplot(splice_df, ggplot2::aes(x=variant, y=score, label=Transcript_id))+
+  ggplot2::geom_point(size=4, shape=21,fill= ifelse(splice_df$truncation_origin=="none", "black",ifelse(splice_df$truncation_origin!="none", "white","black"))) +
+  ggrepel::geom_text_repel(colour= "black")
+  
+  return(qtp)
+}
+
 #' Add more useful ids to unknown transcripts.
 #' Append a number to any Transcript_ids labelled with the id "unknown".
 #'
