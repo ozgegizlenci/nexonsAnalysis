@@ -122,3 +122,16 @@ DT::datatable(parsed_default_with_trunc)
 ```
 
 ![](man/figures/README-unnamed-chunk-8-1.png)
+
+
+## Drawing the plot with flagged truncated isoforms
+
+Visualisation of the truncated isoform variants with transparent colours in the isoform plot and unfilled circles in the quantification plot.
+``` r
+draw_splice_picture_trunc(parsed_with_trunc, quant = TRUE, order_splices = "score")
+```
+![parsed_with_trunc_gtf_score2](https://user-images.githubusercontent.com/49747399/161632069-b004779d-0739-4ecc-8cfa-b654d00e2bcb.png)
+
+
+
+
